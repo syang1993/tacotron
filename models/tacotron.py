@@ -49,7 +49,7 @@ class Tacotron():
 
       # Attention
       attention_cell = AttentionWrapper(
-        DecoderPrenetWrapper(GRUCell(hp.attention_depth), is_training, hp.prenet_depths),
+        GRUCell(hp.attention_depth),
         BahdanauAttention(hp.attention_depth, encoder_outputs),
         alignment_history=True,
         output_attention=False)                                                  # [N, T_in, attention_depth=256]
@@ -69,9 +69,9 @@ class Tacotron():
       decoder_init_state = output_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
 
       if is_training:
-        helper = TacoTrainingHelper(inputs, mel_targets, hp.num_mels, hp.outputs_per_step)
+        helper = TacoTrainingHelper(inputs, mel_targets, hp)
       else:
-        helper = TacoTestHelper(batch_size, hp.num_mels, hp.outputs_per_step)
+        helper = TacoTestHelper(batch_size, hp)
 
       (decoder_outputs, _), final_decoder_state, _ = tf.contrib.seq2seq.dynamic_decode(
         BasicDecoder(output_cell, helper, decoder_init_state),
